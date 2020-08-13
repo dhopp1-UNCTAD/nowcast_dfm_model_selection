@@ -6,14 +6,14 @@ gen_lags <- function(data, catalog) {
   return (variable_lags)
 }
 
-evaluate_dfm <- function (data, target_variable, variable_lags, test_proportion=0.85, p=1, max_iter=1500, threshold=1e-5) {
+evaluate_dfm <- function (data, target_variable, variable_lags, test_proportion=0.85, blocks=NA, p=1, max_iter=1500, threshold=1e-5) {
   # split into test and train sets
   data <- data %>% arrange(date)
   test_row <- as.integer(nrow(data) * test_proportion)
   train <- data[1:(test_row-1),]
   
   # estimate dfm on training data
-  output_dfm <- dfm(train, p=p, max_iter=max_iter, threshold=threshold)
+  output_dfm <- dfm(train, blocks=blocks, p=p, max_iter=max_iter, threshold=threshold)
   
   # function for lagging a series
   lag_series <- function(dates, series, n_lag, as_of_date) {
