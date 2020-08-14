@@ -79,6 +79,6 @@ for (target_variable in c("x_world", "x_vol_world2", "x_servs_world")) {
     write_csv(results, "results.csv")
   }
 }
-# best model, 14! for x_world
-best_model <- results %>% filter(target_variable == !!target_variable) %>% mutate(final = RMSE * as.numeric(MAE)) %>% arrange(final) %>% slice(1:1) %>% select(model_num) %>% pull
-best_vars <- colnames(results)[(which(colnames(results) == "median_rank")+1):ncol(results)][results[best_model, (which(colnames(results) == "median_rank")+1):ncol(results)] == 1]
+# best model
+#best_model <- results %>% filter(target_variable == !!target_variable) %>% mutate(final = as.numeric(RMSE) * as.numeric(MAE)) %>% arrange(final) %>% slice(1:1) %>% select(model_num) %>% pull
+#best_vars <- colnames(results)[(which(colnames(results) == "median_rank")+1):ncol(results)][results[best_model, (which(colnames(results) == "median_rank")+1):ncol(results)] == 1]
