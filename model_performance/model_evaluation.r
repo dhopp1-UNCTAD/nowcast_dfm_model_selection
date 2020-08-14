@@ -5,9 +5,12 @@ Sys.setlocale(category = "LC_NUMERIC", locale = "en_US.UTF-8")
 source("evaluate_dfm.r")
 
 # reading in necessary CSVs
+helper_directory <- "/home/danhopp/dhopp1/UNCTAD/nowcast_data_update/helper/"
+output_directory <- "/home/danhopp/dhopp1/UNCTAD/nowcast_data_update/output/"
+database <- "2020-08-11_database_tf.csv"
 ranking <- read_csv("../variable_ranking/norm_variable_ranking.csv")
-data <- read_csv("/home/danhopp/dhopp1/UNCTAD/nowcast_data_update/output/2020-08-11_database_tf.csv")
-catalog <- read_csv("/home/danhopp/dhopp1/UNCTAD/nowcast_data_update/helper/catalog.csv")
+data <- read_csv(paste0(output_directory, database))
+catalog <- read_csv(paste0(helper_directory, "catalog.csv"))
 if (T) {
   results <- read_csv("results.csv") 
 } else {
@@ -117,14 +120,37 @@ for (target_variable in c("x_world", "x_vol_world2", "x_servs_world")) {
 
 
 # best model experimentation
-# x_world = 1667
+# x_world = 1667->1691 (without eikon)
 # x_vol_world2 = 1675
-# x_servs_world = 1683
-target_variable <- "x_servs_world"
-p <- 2
-best_model <- get_best_model(results, target_variable, rank=3)
+# x_servs_world = 1683->1690 (without eikon)
+target_variable <- "x_vol_world2"
+p <- 1
+best_model <- get_best_model(results, target_variable, rank=5)
 which_slice <- get_slice(results, ranking, best_model)$slices
 which_blocks <- c("Block1-Global")
 results <- run_single(results, ranking, target_variable, which_slice, which_blocks, p, write_output=TRUE)
-derived_best <- 1683 # when run again get slightly different numbers, compare to this one
+derived_best <- 1675 # when run again get slightly different numbers, compare to this one
 compare_models(results, derived_best, nrow(results))
+
+#results %>% mutate(wow=ifelse(model_num==nrow(results),"yes","no")) %>% filter(target_variable==!!target_variable) %>% mutate(final=as.numeric(RMSE) * as.numeric(MAE)) %>% arrange(final) %>% mutate(rank=1:n()) %>% 
+#  ggplot() + aes(x=rank, y=final, color=wow) + geom_point()
+
+# write best into blocks in catalog
+best_x_world <- 1691
+best_x_vol_world2 <- 1675
+best_x_servs_world <- 1690
+
+catalog$x_world_p <- results %>% filter(model_num == best_x_world) %>% select(p) %>% pull
+catalog$x_vol_world2_p <- results %>% filter(model_num == best_x_vol_world2) %>% select(p) %>% pull
+catalog$x_servs_world_p <- results %>% filter(model_num == best_x_servs_world) %>% select(p) %>% pull
+
+catalog <- catalog %>% mutate(x_world_block_1 = ifelse(code %in% get_slice(results, ranking, best_x_world)$vars, 1, 0))
+catalog <- catalog %>% mutate(x_world = x_world_block_1)
+
+catalog <- catalog %>% mutate(x_vol_world2_block_1 = ifelse(code %in% get_slice(results, ranking, best_x_vol_world2)$vars, 1, 0))
+catalog <- catalog %>% mutate(x_vol_world2 = x_vol_world2_block_1)
+
+catalog <- catalog %>% mutate(x_servs_world_block_1 = ifelse(code %in% get_slice(results, ranking, best_x_servs_world)$vars, 1, 0))
+catalog <- catalog %>% mutate(x_servs_world = x_servs_world_block_1)
+
+write_csv(catalog, paste0(helper_directory, "catalog.csv"))
