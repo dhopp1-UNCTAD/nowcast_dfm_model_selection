@@ -144,13 +144,13 @@ catalog$x_world_p <- results %>% filter(model_num == best_x_world) %>% select(p)
 catalog$x_vol_world2_p <- results %>% filter(model_num == best_x_vol_world2) %>% select(p) %>% pull
 catalog$x_servs_world_p <- results %>% filter(model_num == best_x_servs_world) %>% select(p) %>% pull
 
-catalog <- catalog %>% mutate(x_world_block_1 = ifelse(code %in% get_slice(results, ranking, best_x_world)$vars, 1, 0))
+catalog <- catalog %>% mutate(x_world_block_1 = ifelse(code %in% c("x_world", get_slice(results, ranking, best_x_world)$vars), 1, 0))
 catalog <- catalog %>% mutate(x_world = x_world_block_1)
 
-catalog <- catalog %>% mutate(x_vol_world2_block_1 = ifelse(code %in% get_slice(results, ranking, best_x_vol_world2)$vars, 1, 0))
+catalog <- catalog %>% mutate(x_vol_world2_block_1 = ifelse(code %in% c("x_vol_world2", get_slice(results, ranking, best_x_vol_world2)$vars), 1, 0))
 catalog <- catalog %>% mutate(x_vol_world2 = x_vol_world2_block_1)
 
-catalog <- catalog %>% mutate(x_servs_world_block_1 = ifelse(code %in% get_slice(results, ranking, best_x_servs_world)$vars, 1, 0))
+catalog <- catalog %>% mutate(x_servs_world_block_1 = ifelse(code %in% c("x_servs_world", get_slice(results, ranking, best_x_servs_world)$vars), 1, 0))
 catalog <- catalog %>% mutate(x_servs_world = x_servs_world_block_1)
 
 write_csv(catalog, paste0(helper_directory, "catalog.csv"))
