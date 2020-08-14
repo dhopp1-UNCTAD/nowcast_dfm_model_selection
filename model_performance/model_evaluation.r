@@ -27,8 +27,10 @@ run_single <- function(results, ranking, target_variable, which_slice, which_blo
   vars <- ranking %>% 
     filter(target_variable == !!target_variable) %>% 
     slice(which_slice) %>% 
-    select(variable) %>% unique %>% pull
-  model_data <- data[,c("date", target_variable, vars)] %>% data.frame
+    select(variable) %>% pull
+  vars <- c(target_variable, vars) %>% unique
+  var_orders <- 1:length(vars)
+  model_data <- data[,c("date", vars)] %>% data.frame
   blocks <- data.frame(code=vars) %>% left_join(catalog, by="code") %>% select(which_blocks) %>% data.frame
   
   variable_lags <- gen_lags(model_data, catalog)
@@ -45,7 +47,7 @@ run_single <- function(results, ranking, target_variable, which_slice, which_blo
   results[last_result_row + 1, unique(catalog$code)] <- paste(rep("0", ncol(blocks)), collapse="-")
   counter <- 1
   for (variable in vars) {
-    results[last_result_row + 1, variable] <- paste(as.character(blocks[counter,]), collapse="-")
+    results[last_result_row + 1, variable] <- str_replace(paste(as.character(blocks[counter,]), collapse="-"), "1", as.character(counter)) # replace 1 with 
     counter <- counter + 1
   }
   tmp_ranking <- ranking %>%  filter(target_variable == !!target_variable) %>% mutate(rank=1:n()) %>% filter(variable %in% vars)
@@ -120,37 +122,37 @@ for (target_variable in c("x_world", "x_vol_world2", "x_servs_world")) {
 
 
 # best model experimentation
-# x_world = 1667->1691 (without eikon)
-# x_vol_world2 = 1675
-# x_servs_world = 1683->1690 (without eikon)
-target_variable <- "x_vol_world2"
+# x_world = 1702
+# x_vol_world2 = 1703
+# x_servs_world = 1704 (without eikon)
+target_variable <- "x_world"
 p <- 1
-best_model <- get_best_model(results, target_variable, rank=5)
+best_model <- 1702#get_best_model(results, target_variable, rank=5)
 which_slice <- get_slice(results, ranking, best_model)$slices
 which_blocks <- c("Block1-Global")
 results <- run_single(results, ranking, target_variable, which_slice, which_blocks, p, write_output=TRUE)
-derived_best <- 1675 # when run again get slightly different numbers, compare to this one
+derived_best <- 1702 # when run again get slightly different numbers, compare to this one
 compare_models(results, derived_best, nrow(results))
 
 #results %>% mutate(wow=ifelse(model_num==nrow(results),"yes","no")) %>% filter(target_variable==!!target_variable) %>% mutate(final=as.numeric(RMSE) * as.numeric(MAE)) %>% arrange(final) %>% mutate(rank=1:n()) %>% 
 #  ggplot() + aes(x=rank, y=final, color=wow) + geom_point()
 
 # write best into blocks in catalog
-best_x_world <- 1691
-best_x_vol_world2 <- 1675
-best_x_servs_world <- 1690
+best_x_world <- 1702
+best_x_vol_world2 <- 1703
+best_x_servs_world <- 1704
 
 catalog$x_world_p <- results %>% filter(model_num == best_x_world) %>% select(p) %>% pull
 catalog$x_vol_world2_p <- results %>% filter(model_num == best_x_vol_world2) %>% select(p) %>% pull
 catalog$x_servs_world_p <- results %>% filter(model_num == best_x_servs_world) %>% select(p) %>% pull
 
-catalog <- catalog %>% mutate(x_world_block_1 = ifelse(code %in% c("x_world", get_slice(results, ranking, best_x_world)$vars), 1, 0))
-catalog <- catalog %>% mutate(x_world = x_world_block_1)
-
-catalog <- catalog %>% mutate(x_vol_world2_block_1 = ifelse(code %in% c("x_vol_world2", get_slice(results, ranking, best_x_vol_world2)$vars), 1, 0))
-catalog <- catalog %>% mutate(x_vol_world2 = x_vol_world2_block_1)
-
-catalog <- catalog %>% mutate(x_servs_world_block_1 = ifelse(code %in% c("x_servs_world", get_slice(results, ranking, best_x_servs_world)$vars), 1, 0))
-catalog <- catalog %>% mutate(x_servs_world = x_servs_world_block_1)
-
+for (row in 1:nrow(catalog)) {
+  catalog[row, c("x_world", "x_world_block_1")] <- results %>% filter(model_num==best_x_world) %>% select(catalog[row,"code"] %>% pull) %>% pull %>% as.numeric
+}
+for (row in 1:nrow(catalog)) {
+  catalog[row, c("x_vol_world2", "x_vol_world2_block_1")] <- results %>% filter(model_num==best_x_vol_world2) %>% select(catalog[row,"code"] %>% pull) %>% pull %>% as.numeric
+}
+for (row in 1:nrow(catalog)) {
+  catalog[row, c("x_servs_world", "x_servs_world_block_1")] <- results %>% filter(model_num==best_x_servs_world) %>% select(catalog[row,"code"] %>% pull) %>% pull %>% as.numeric
+}
 write_csv(catalog, paste0(helper_directory, "catalog.csv"))
