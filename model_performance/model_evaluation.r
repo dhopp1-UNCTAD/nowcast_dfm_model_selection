@@ -125,21 +125,21 @@ for (target_variable in c("x_world", "x_vol_world2", "x_servs_world")) {
 # x_world = 1702
 # x_vol_world2 = 1703
 # x_servs_world = 1704 (without eikon)
-target_variable <- "x_world"
+target_variable <- "x_servs_world"
 p <- 1
-best_model <- 1702#get_best_model(results, target_variable, rank=5)
+best_model <- 1704#get_best_model(results, target_variable, rank=1)
 which_slice <- get_slice(results, ranking, best_model)$slices
 which_blocks <- c("Block1-Global")
 results <- run_single(results, ranking, target_variable, which_slice, which_blocks, p, write_output=TRUE)
-derived_best <- 1702 # when run again get slightly different numbers, compare to this one
+derived_best <- 1704 # when run again get slightly different numbers, compare to this one
 compare_models(results, derived_best, nrow(results))
 
 #results %>% mutate(wow=ifelse(model_num==nrow(results),"yes","no")) %>% filter(target_variable==!!target_variable) %>% mutate(final=as.numeric(RMSE) * as.numeric(MAE)) %>% arrange(final) %>% mutate(rank=1:n()) %>% 
 #  ggplot() + aes(x=rank, y=final, color=wow) + geom_point()
 
 # write best into blocks in catalog
-best_x_world <- 1702
-best_x_vol_world2 <- 1703
+best_x_world <- 1718
+best_x_vol_world2 <- 1722
 best_x_servs_world <- 1704
 
 catalog$x_world_p <- results %>% filter(model_num == best_x_world) %>% select(p) %>% pull
