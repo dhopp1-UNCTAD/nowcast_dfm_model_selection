@@ -63,7 +63,7 @@ for (target_variable in c("x_world", "x_vol_world2", "x_servs_world")) {
     ### selecting out bad variables don't want in the run
     p <- 1
     which_blocks <- c("Block1-Global") # columns in catalog
-    results <- run_single(results, ranking, target_variable, which_slice=which_slice, which_blocks=which_blocks, p=p, write_output=TRUE)
+    results <- run_single(results, ranking, data, target_variable, which_slice=which_slice, which_blocks=which_blocks, p=p, write_output=TRUE)
   }
 }
 
@@ -77,7 +77,7 @@ p <- 1
 best_model <- get_best_model(results, target_variable, rank=1)
 which_slice <- get_slice(results, ranking, best_model)$slices
 which_blocks <- c("Block1-Global")
-results <- run_single(results, ranking, target_variable, which_slice, which_blocks, p, write_output=FALSE)
+results <- run_single(results, ranking, data, target_variable, which_slice, which_blocks, p, write_output=FALSE)
 derived_best <- 1731 # when run again get slightly different numbers, compare to this one
 compare_models(results, derived_best, nrow(results))
 

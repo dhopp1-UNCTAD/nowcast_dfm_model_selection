@@ -1,16 +1,20 @@
 ### helping functions
 # function to run a single model
-run_single <- function(results, ranking, target_variable, which_slice, which_blocks, p, write_output=FALSE) {
+run_single <- function(results, ranking, data, target_variable, which_slice, which_blocks, p, write_output=FALSE) {
   last_result_row <- nrow(results)
   
   vars <- ranking %>% 
     filter(target_variable == !!target_variable) %>% 
     slice(which_slice) %>% 
-    select(variable) %>% pull
+    select(variable) %>% pull %>% as.character
   vars <- c(target_variable, vars) %>% unique
   var_orders <- 1:length(vars)
   model_data <- data[,c("date", vars)] %>% data.frame
-  blocks <- data.frame(code=vars) %>% left_join(catalog, by="code") %>% select(which_blocks) %>% data.frame
+  if (exists("catalog")) { # for generality, if catalog doesn't exist just do 1 global block
+    blocks <- data.frame(code=vars) %>% left_join(catalog, by="code") %>% select(which_blocks) %>% data.frame 
+  } else {
+    blocks <- which_blocks
+  }
   
   variable_lags <- gen_lags(model_data, catalog)
   status <- tryCatch({
