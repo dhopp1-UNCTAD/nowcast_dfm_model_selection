@@ -5,13 +5,14 @@ class MV_LSTM(torch.nn.Module):
         super(MV_LSTM, self).__init__()
         self.n_features = n_features
         self.seq_len = seq_length
-        self.n_hidden = 20 # number of hidden states
-        self.n_layers = 1 # number of LSTM layers (stacked)
+        self.n_hidden = 20 # number of hidden states originally 20
+        self.n_layers = 2 # number of LSTM layers (stacked) originally 1
     
         self.l_lstm = torch.nn.LSTM(input_size = n_features, 
                                  hidden_size = self.n_hidden,
                                  num_layers = self.n_layers, 
                                  batch_first = True)
+		
         # according to pytorch docs LSTM output is 
         # (batch_size,seq_len, num_directions * hidden_size)
         # when considering batch_first = True

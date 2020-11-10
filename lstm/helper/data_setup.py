@@ -4,14 +4,14 @@ import pandas as pd
 def gen_raw_data(target_variable, variables=[]):
 	"reading in raw data from nowcast data"
 	
-	rawdata = pd.read_csv("/home/danhopp/dhopp1/UNCTAD/nowcast_data_update/output/2020-09-29_database_tf.csv", parse_dates=["date"])
+	rawdata = pd.read_csv("/home/danhopp/dhopp1/UNCTAD/nowcast_data_update/output/2020-11-10_database_tf.csv", parse_dates=["date"])
 	catalog = pd.read_csv("/home/danhopp/dhopp1/UNCTAD/nowcast_data_update/helper/catalog.csv")
 	if variables == []:
 		variables = list(catalog.loc[catalog[target_variable] > 0,"code"])
 	variables = ["date"] + [target_variable] + variables
 	variables = pd.unique(variables)
 	data = rawdata.loc[:,variables]
-	data = data.fillna(-1)
+	data = data.fillna(0.0)
 	return data
 
 def gen_dataset(rawdata, target_variable, variables):
@@ -54,6 +54,6 @@ def gen_x_y(dataset, n_timesteps):
 	"generate the final dataset to feed the model"
 	
 	X, y = split_sequences(dataset, n_timesteps)
-	X = X[y != -1,:,:] # delete na ys
-	y = y[y != -1]
+	X = X[y != 0.0,:,:] # delete na ys
+	y = y[y != 0.0]
 	return X, y

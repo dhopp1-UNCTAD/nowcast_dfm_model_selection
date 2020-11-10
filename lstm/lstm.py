@@ -1,5 +1,6 @@
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import torch
+import numpy as np
 import os
 os.chdir("/home/danhopp/dhopp1/UNCTAD/nowcast_dfm_model_selection/lstm/")
 
@@ -8,11 +9,17 @@ import helper.mv_net as mv_net
 import helper.model_training as model_training
 
 # setting up data
-variables = ["bci_jp", "x_nl", "x_it", "x_br", "ipi_de", "ipi_ru", "rti_vol_fr", "constr_ca", "bci_nl", "export_orders_de"]
-data = data_setup.gen_raw_data("x_world", variables)
-dataset = data_setup.gen_dataset(data, "x_world", variables) # incorporate here setting the ragged ends to -1 for missing data
-n_timesteps = 36
-X, y = data_setup.gen_x_y(dataset, n_timesteps)
+variables = ["bci_jp", "x_nl", "x_it", "x_br", "ipi_de", "ipi_ru", "rti_vol_fr", "constr_ca", "bci_nl", "export_orders_de", "fc_x_us"]
+tmp = data_setup.gen_raw_data("x_world", variables)
+n_timesteps = 12
+
+train = tmp.loc[:179,:]
+test = tmp.loc[180:,:]
+
+train_dataset = data_setup.gen_dataset(train, "x_world", variables)
+X, y = data_setup.gen_x_y(train_dataset, n_timesteps)
+test_dataset = data_setup.gen_dataset(test, "x_world", variables)
+X_test, y_test = data_setup.gen_x_y(test_dataset, n_timesteps)
 
 # model parameters
 n_features = X.shape[2]
@@ -27,3 +34,15 @@ mv_net = model_training.train_model(X, y, n_timesteps, mv_net, criterion, optimi
 
 # predictions
 preds = model_training.gen_preds(X, mv_net)
+
+# ragged edges
+X_ragged = np.array(X_test)
+for obs in range(X_test.shape[0]):
+	for var in range(len(variables)):
+		for ragged in range(1, 3): # how many months delay before data
+			X_ragged[obs,X_test.shape[1]-ragged,var] = 0.0 # setting to missing data
+
+preds = model_training.gen_preds(X_ragged, mv_net)
+plt.plot(y_test)
+plt.plot(preds)
+plt.title(np.abs(preds - y_test).mean())
