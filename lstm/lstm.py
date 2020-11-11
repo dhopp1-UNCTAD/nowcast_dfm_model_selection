@@ -18,8 +18,19 @@ test = tmp.loc[180:,:]
 
 train_dataset = data_setup.gen_dataset(train, "x_world", variables)
 X, y = data_setup.gen_x_y(train_dataset, n_timesteps)
+
+# filtering out missing ys, target is quarterly
+mask = y != 0.0
+y = y[mask]
+X = X[mask,:,:]
+
 test_dataset = data_setup.gen_dataset(test, "x_world", variables)
 X_test, y_test = data_setup.gen_x_y(test_dataset, n_timesteps)
+
+# filtering out missing ys, target is quarterly
+mask = y_test != 0.0
+y_test = y_test[mask]
+X_test = X_test[mask,:,:]
 
 # model parameters
 n_features = X.shape[2]
