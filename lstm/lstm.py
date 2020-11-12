@@ -37,8 +37,8 @@ n_features = X.shape[2]
 mv_net = mv_net.MV_LSTM(n_features,n_timesteps)
 criterion = torch.nn.L1Loss()
 optimizer = torch.optim.Adam(mv_net.parameters(), lr=1e-1)
-train_episodes = 200
-batch_size = 16
+train_episodes = 10
+batch_size = 36
 
 # training
 mv_net = model_training.train_model(X, y, n_timesteps, mv_net, criterion, optimizer, train_episodes, batch_size)
@@ -57,3 +57,30 @@ preds = model_training.gen_preds(X_ragged, mv_net)
 plt.plot(y_test)
 plt.plot(preds)
 plt.title(np.abs(preds - y_test).mean())
+
+### testing on many runs of one model
+# training
+n_runs = 10
+global_preds = list(range(n_runs ))
+for i in range(n_runs ):
+	mv_net = model_training.train_model(X, y, n_timesteps, mv_net, criterion, optimizer, train_episodes, batch_size)
+	
+	# predictions
+	preds = model_training.gen_preds(X, mv_net)
+	
+	# ragged edges
+	X_ragged = np.array(X_test)
+	for obs in range(X_test.shape[0]):
+		for var in range(len(variables)):
+			for ragged in range(1, 3): # how many months delay before data
+				X_ragged[obs,X_test.shape[1]-ragged,var] = 0.0 # setting to missing data
+	
+	preds = model_training.gen_preds(X_ragged, mv_net)
+	global_preds[i] = preds
+	
+plot_preds = list(range(len(global_preds[0])))
+for i in range(len(plot_preds)):
+	plot_preds[i] = np.mean([x[i] for x in global_preds])
+plt.plot(y_test)
+plt.plot(plot_preds)
+plt.title(np.abs(plot_preds - y_test).mean())
