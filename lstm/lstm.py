@@ -36,12 +36,15 @@ X_test = X_test[mask,:,:]
 n_features = X.shape[2]
 mv_net = mv_net.MV_LSTM(n_features,n_timesteps)
 criterion = torch.nn.L1Loss()
-optimizer = torch.optim.Adam(mv_net.parameters(), lr=1e-1)
-train_episodes = 10
-batch_size = 36
+optimizer = torch.optim.Adam(mv_net.parameters(), lr=1e-4)
+train_episodes = 200
+batch_size = 30
 
 # training
-mv_net = model_training.train_model(X, y, n_timesteps, mv_net, criterion, optimizer, train_episodes, batch_size)
+mv_net, train_loss = model_training.train_model(X, y, n_timesteps, mv_net, criterion, optimizer, train_episodes, batch_size)
+plt.plot(train_loss)
+plt.xlabel("epoch")
+plt.ylabel("train loss")
 
 # predictions
 preds = model_training.gen_preds(X, mv_net)
