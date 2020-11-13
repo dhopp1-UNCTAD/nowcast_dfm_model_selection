@@ -14,6 +14,8 @@ class MV_LSTM(torch.nn.Module):
                                  hidden_size = self.n_hidden,
                                  num_layers = self.n_layers, 
                                  batch_first = True)
+        #self.drop = torch.nn.Dropout(0.1)
+        #self.l_linear2 = torch.nn.Linear(self.n_hidden*self.seq_len, 10)
         self.l_linear = torch.nn.Linear(self.n_hidden*self.seq_len, 1)
 		# model layers
         
@@ -30,6 +32,8 @@ class MV_LSTM(torch.nn.Module):
         # model layers
         x, self.hidden = self.l_lstm(x,self.hidden)
         x = x.contiguous().view(batch_size,-1) # make tensor of right dimensions
+        #x = self.drop(x)
+        #x = self.l_linear2(x)
         x = self.l_linear(x)
         # model layers
 		
