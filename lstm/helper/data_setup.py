@@ -11,7 +11,7 @@ def gen_raw_data(target_variable, variables=[]):
 	variables = ["date"] + [target_variable] + variables
 	variables = pd.unique(variables)
 	data = rawdata.loc[:,variables]
-	data = data.fillna(0.0)
+	data = data.fillna(0.0) # will have to be replaced with filling this with ARMA
 	return data
 
 def gen_dataset(rawdata, target_variable, variables):
@@ -57,3 +57,35 @@ def gen_x_y(dataset, n_timesteps):
 	X = X[y != 0.0,:,:] # delete na ys
 	y = y[y != 0.0]
 	return X, y
+
+def gen_vintage_dataset(rawdata, sim_month):
+	"generate a simulated vintage/ragged dataset based on actual publication lags"
+	
+	catalog = pd.read_csv("/home/danhopp/dhopp1/UNCTAD/nowcast_data_update/helper/catalog.csv")
+	dataset = rawdata.loc[rawdata.date <= sim_month,:]
+	
+	for col in dataset.columns[1:]:
+		lag = catalog.loc[catalog.code == col, "publication_lag"].values[0]
+		dataset.loc[len(dataset)-lag-1:, col] = 0.0 # this will have to be replaced with function to do ARMA if necessary
+	
+	return dataset
+	
+def gen_ragged_dataset(dataset, variables, month_lag):
+	"adjust an already created LSTM dataset back some months"
+	
+	catalog = pd.read_csv("/home/danhopp/dhopp1/UNCTAD/nowcast_data_update/helper/catalog.csv")
+	
+	# get publication lags
+	pub_lags = []
+	for var in variables:
+		lag = catalog.loc[catalog.code == var, "publication_lag"].values[0]
+		pub_lags.append(lag)
+		
+	# generate ragged dataset
+	X_ragged = np.array(dataset)		
+	for obs in range(X_ragged.shape[0]): # go through every observation
+		for var in range(len(pub_lags)): # every variable (and its corresponding lag)
+			for ragged in range(1, pub_lags[var]+1-month_lag): # setting correct lags (-month_lag because input -2 for -2 months, so +2 additional months of lag)
+				X_ragged[obs, X_ragged.shape[1]-ragged, var] = 0.0 # setting to missing data
+
+	return X_ragged

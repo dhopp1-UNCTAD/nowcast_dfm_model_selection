@@ -1,12 +1,12 @@
 import torch
 
 class MV_LSTM(torch.nn.Module):
-    def __init__(self,n_features,seq_length):
+    def __init__(self,n_features,seq_length, n_hidden, n_layers):
         super(MV_LSTM, self).__init__()
         self.n_features = n_features
         self.seq_len = seq_length
-        self.n_hidden = 20 # number of hidden states
-        self.n_layers = 2 # number of LSTM layers (stacked)
+        self.n_hidden = n_hidden
+        self.n_layers = n_layers
 
 		# model layers
 		# n_layers stacked LSTM layers + one linear dense layer to get final prediction

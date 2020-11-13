@@ -1,8 +1,8 @@
 import torch
 
-def train_model(X, y, n_timesteps, mv_net, criterion, optimizer, train_episodes, batch_size):
+def train_model(X, y, n_timesteps, mv_net, criterion, optimizer, train_episodes, batch_size, decay):
 	train_loss = [] # for plotting train loss
-	my_lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=0.96) # for learning rate decay
+	my_lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=decay) # for learning rate decay
 	mv_net.train()
 	for t in range(train_episodes):
 	    for b in range(0,len(X),batch_size):
@@ -17,8 +17,11 @@ def train_model(X, y, n_timesteps, mv_net, criterion, optimizer, train_episodes,
 	        loss = criterion(output.view(-1), y_batch)  
 	        
 	        loss.backward()
-	        my_lr_scheduler.step() # optimizer.step() etc. if don't do learning rate decay
-	        my_lr_scheduler.zero_grad()
+
+	        optimizer.step()
+	        optimizer.zero_grad()
+		
+	    my_lr_scheduler.step()
 			
 	    print('step : ' , t , 'loss : ' , loss.item())
 	    train_loss.append(loss.item())
