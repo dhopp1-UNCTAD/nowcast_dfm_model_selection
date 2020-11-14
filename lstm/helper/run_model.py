@@ -6,7 +6,7 @@ import helper.data_setup as data_setup
 import helper.mv_net as mv_net
 import helper.model_training as model_training
 
-def run_model(variables, target_variable, n_timesteps=12, train_episodes=200, batch_size=30, lr=1e-2, decay=0.96, missings=0.0, n_hidden=20, n_layers=2, eval_df=pd.DataFrame()):
+def run_model(variables, target_variable, n_timesteps=12, train_episodes=200, batch_size=30, lr=1e-2, decay=0.96, missings=0.0, n_hidden=20, n_layers=2, dropout=0, eval_df=pd.DataFrame()):
 	"""
 	train and evaluate a model
 	
@@ -48,7 +48,7 @@ def run_model(variables, target_variable, n_timesteps=12, train_episodes=200, ba
 
 	### model parameters
 	n_features = X.shape[2]
-	net = mv_net.MV_LSTM(n_features,n_timesteps, n_hidden, n_layers)
+	net = mv_net.MV_LSTM(n_features,n_timesteps, n_hidden, n_layers, dropout)
 	criterion = torch.nn.L1Loss()
 	optimizer = torch.optim.Adam(net.parameters(), lr=lr)
 	
