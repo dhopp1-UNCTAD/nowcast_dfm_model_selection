@@ -14,7 +14,7 @@ for target_variable in ranking.target_variable.unique():
 	for i in range(500): # run 500 models with different variables
 		print(f"{target_variable}: run {i}")
 		# parameters	
-		variables = ranking.loc[ranking.target_variable == target_variable,:].reset_index(drop=True).iloc[:i,:] # random assortment of top 100 variables
+		variables = ranking.loc[ranking.target_variable == target_variable,:].reset_index(drop=True).iloc[:100,:] # random assortment of top 100 variables
 		variables = list(variables.loc[pd.unique([random.randint(0,99) for x in range(random.randint(5,30))]), "variable"].values)
 		#variables = ['x_oecd', 'x_fr', 'adv_rti_us', 'x_br', 'export_orders_nl', 'bci_jp', 'x_vol_cn', 'manuf_orders_de', 'export_orders_fr', 'x_be', 'manuf_emp_fut_it', 'x_vol_world2', 'x_ru'] # best set for x_world
 		#variables = ["bci_jp", "x_nl", "x_it", "x_br", "ipi_de", "ipi_ru", "rti_vol_fr", "constr_ca", "bci_nl", "export_orders_de", "fc_x_us"] # original x_world testing dataset
