@@ -43,7 +43,7 @@ def run_model(variables, target_variable, n_timesteps=12, train_episodes=200, ba
 	X_test, y_test = data_setup.gen_x_y(test_dataset, n_timesteps)
 	tests = {}
 	for month_lag in [-2,-1,0,1,2]:
-		tests[month_lag] = data_setup.gen_ragged_dataset(X_test, variables, month_lag)
+		tests[month_lag] = data_setup.gen_ragged_dataset(X_test, variables, month_lag, missings, tmp)
 
 
 	### model parameters
