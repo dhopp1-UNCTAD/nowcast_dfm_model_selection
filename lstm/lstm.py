@@ -11,7 +11,7 @@ eval_df = pd.read_csv("evaluation.csv")
 ranking = pd.read_csv("../variable_ranking/norm_variable_ranking.csv")
 
 for target_variable in ranking.target_variable.unique():
-	for i in range(500): # run 500 models with different variables
+	for i in range(250): # run 500 models with different variables
 		print(f"{target_variable}: run {i}")
 		# parameters	
 		variables = ranking.loc[ranking.target_variable == target_variable,:].reset_index(drop=True).iloc[:100,:] # random assortment of top 100 variables
