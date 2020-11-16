@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 def gen_raw_data(target_variable, variables=[]):
 	"reading in raw data from nowcast data"
 	
-	rawdata = pd.read_csv("/home/danhopp/dhopp1/UNCTAD/nowcast_data_update/output/2020-11-10_database_tf.csv", parse_dates=["date"])
+	rawdata = pd.read_csv("/home/danhopp/dhopp1/UNCTAD/nowcast_data_update/output/2020-08-07_database_tf.csv", parse_dates=["date"])
 	catalog = pd.read_csv("/home/danhopp/dhopp1/UNCTAD/nowcast_data_update/helper/catalog.csv")
 	if variables == []:
 		variables = list(catalog.loc[catalog[target_variable] > 0,"code"])

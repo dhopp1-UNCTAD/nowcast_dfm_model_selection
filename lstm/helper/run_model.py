@@ -32,8 +32,8 @@ def run_model(variables, target_variable, n_timesteps=12, train_episodes=200, ba
 	
 	
 	### setting up test and train data
-	train = tmp.loc[tmp.date <= "2016-12-01",:]
-	test = tmp.loc[(tmp.date >= "2016-01-01"),:]
+	train = tmp.loc[tmp.date <= "2017-09-01",:]
+	test = tmp.loc[(tmp.date > "2016-12-01"),:] # to get the proper # of test set like in DFM
 	
 	train_dataset = data_setup.gen_dataset(train, target_variable, variables)
 	X, y = data_setup.gen_x_y(train_dataset, n_timesteps)
@@ -54,17 +54,20 @@ def run_model(variables, target_variable, n_timesteps=12, train_episodes=200, ba
 	
 	# training
 	net, train_loss = model_training.train_model(X, y, n_timesteps, net, criterion, optimizer, train_episodes, batch_size, decay)
-	convergence_plot = plt.plot(train_loss)
-	plt.xlabel("epoch")
-	plt.ylabel("train loss")
+	convergence_plot = 0#plt.plot(train_loss)
+	#plt.xlabel("epoch")
+	#plt.ylabel("train loss")
 	
 	
 	### evaluation
 	# eval plot
-	eval_plot = plt.plot(y_test, label="actual")
-	for month_lag in [-2,-1,0,1,2]:
-		plt.plot(model_training.gen_preds(tests[month_lag], net), label=f"{month_lag} months")
-	plt.legend()
+	eval_plot = 0#plt.plot(y_test, label="actual")
+	#for month_lag in [-2,-1,0,1,2]:
+	#	plt.plot(model_training.gen_preds(tests[month_lag], net), label=f"{month_lag} months")
+	#plt.legend()
+	
+	#eval_plot = plt.plot(y, label="actual")
+	#plt.plot(model_training.gen_preds(X, net), label=f"pred")
 	
 	# eval df
 	tmp_eval = pd.DataFrame({
